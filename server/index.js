@@ -19,12 +19,12 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://collaborative-text-editor-1-ekby.onrender.com'];
 const configuredOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .split(',')
   .map(o => o.trim())
   .filter(Boolean);
-const allowedOrigins = configuredOrigins.length ? configuredOrigins : defaultOrigins;
+const allowedOrigins = defaultOrigins;
 
 const isOriginAllowed = (origin) => {
   if (!origin) return true; // allow same-origin/non-browser requests
