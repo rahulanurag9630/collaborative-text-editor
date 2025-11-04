@@ -1,23 +1,9 @@
 import { useEffect, useState } from 'react';
-import { documentApi } from '../../services/api';
+import { documentApi } from '../../services/api.js';
 import { FileText, Plus, Trash2, Users } from 'lucide-react';
 
-interface Document {
-  id: string;
-  title: string;
-  created_at: string;
-  updated_at: string;
-  role: string;
-  is_shared?: boolean;
-}
-
-interface DocumentListProps {
-  onSelectDocument: (id: string) => void;
-  onCreateDocument: () => void;
-}
-
-export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentListProps) => {
-  const [documents, setDocuments] = useState<Document[]>([]);
+export const DocumentList = ({ onSelectDocument, onCreateDocument }) => {
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -26,7 +12,7 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
       setLoading(true);
       const data = await documentApi.getAll();
       setDocuments(data.documents);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'Failed to load documents');
     } finally {
       setLoading(false);
@@ -37,16 +23,13 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
     loadDocuments();
   }, []);
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this document?')) {
-      return;
-    }
-
+    if (!confirm('Are you sure you want to delete this document?')) return;
     try {
       await documentApi.delete(id);
       setDocuments(docs => docs.filter(d => d.id !== id));
-    } catch (err: any) {
+    } catch (err) {
       alert(err.message || 'Failed to delete document');
     }
   };
@@ -57,7 +40,7 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
       await loadDocuments();
       onCreateDocument();
       onSelectDocument(data.document.id);
-    } catch (err: any) {
+    } catch (err) {
       alert(err.message || 'Failed to create document');
     }
   };
@@ -93,10 +76,7 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
         <div className="text-center py-12">
           <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-500 mb-4">No documents yet</p>
-          <button
-            onClick={handleCreate}
-            className="text-blue-600 hover:text-blue-700"
-          >
+          <button onClick={handleCreate} className="text-blue-600 hover:text-blue-700">
             Create your first document
           </button>
         </div>
@@ -111,9 +91,7 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2 flex-1">
                   <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                  <h3 className="font-semibold text-gray-800 truncate">
-                    {doc.title}
-                  </h3>
+                  <h3 className="font-semibold text-gray-800 truncate">{doc.title}</h3>
                 </div>
                 {doc.role === 'owner' && (
                   <button
@@ -133,9 +111,7 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
                     Shared
                   </span>
                 )}
-                <span className="bg-gray-100 px-2 py-1 rounded capitalize">
-                  {doc.role}
-                </span>
+                <span className="bg-gray-100 px-2 py-1 rounded capitalize">{doc.role}</span>
               </div>
 
               <div className="mt-2 text-xs text-gray-400">
@@ -148,3 +124,5 @@ export const DocumentList = ({ onSelectDocument, onCreateDocument }: DocumentLis
     </div>
   );
 };
+
+

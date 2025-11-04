@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LoginForm } from './components/Auth/LoginForm';
-import { RegisterForm } from './components/Auth/RegisterForm';
-import { DocumentList } from './components/Documents/DocumentList';
-import { CollaborativeEditor } from './components/Editor/CollaborativeEditor';
-import { AIAssistant } from './components/AI/AIAssistant';
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import { LoginForm } from './components/Auth/LoginForm.jsx';
+import { RegisterForm } from './components/Auth/RegisterForm.jsx';
+import { DocumentList } from './components/Documents/DocumentList.jsx';
+import { CollaborativeEditor } from './components/Editor/CollaborativeEditor.jsx';
+import { AIAssistant } from './components/AI/AIAssistant.jsx';
 import { LogOut, FileText } from 'lucide-react';
 
 function AppContent() {
   const { user, loading, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState(null);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
 
   if (loading) {
@@ -99,3 +99,5 @@ function App() {
 }
 
 export default App;
+
+

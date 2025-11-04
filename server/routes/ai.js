@@ -24,7 +24,7 @@ router.post('/grammar-check', textValidation, async (req, res) => {
     const { text } = req.body;
     const model = getGeminiModel();
 
-    const prompt = `Check the following text for grammar, spelling, and style issues. Provide specific suggestions for improvement in a clear, concise format. If there are no issues, say so.
+    const prompt = `Check the following text for grammar, spelling, and style issues. Provide specific suggestions for improvement in a clear, concise format. If there are no issues, say no, and only return the original text only not any other text.
 
 Text: "${text}"
 
@@ -53,7 +53,7 @@ router.post('/enhance', textValidation, async (req, res) => {
     const { text } = req.body;
     const model = getGeminiModel();
 
-    const prompt = `Improve the following text to make it clearer, more professional, and more engaging while maintaining its original meaning and tone:
+    const prompt = `Improve the following text to make it clearer, more professional, and more engaging while maintaining its original meaning and tone and only return the enhanced text not any other text:
 
 "${text}"
 
@@ -82,7 +82,7 @@ router.post('/summarize', textValidation, async (req, res) => {
     const { text } = req.body;
     const model = getGeminiModel();
 
-    const prompt = `Provide a concise summary of the following text in 2-3 sentences:
+    const prompt = `Provide a concise summary of the following text in 2-3 sentences and only return the summary not any other text:
 
 "${text}"
 
@@ -116,7 +116,7 @@ router.post('/complete', async (req, res) => {
 
     const model = getGeminiModel();
 
-    const prompt = `Given the following context and incomplete text, provide a natural completion (1-2 sentences maximum):
+    const prompt = `Given the following context and incomplete text, provide a natural completion (1-2 sentences maximum) and only return the completion text not any other text:
 
 Context: "${context}"
 Incomplete text: "${text}"
@@ -152,7 +152,7 @@ router.post('/suggestions', async (req, res) => {
     const model = getGeminiModel();
 
     const topicContext = topic ? `The document is about: ${topic}.` : '';
-    const prompt = `Given the following text from a document, provide 3-5 helpful writing suggestions or ideas for what to write next. ${topicContext}
+    const prompt = `Given the following text from a document, provide 3-5 helpful writing suggestions or ideas for what to write next and only return the suggestions not any other text. ${topicContext}
 
 Current text: "${text}"
 

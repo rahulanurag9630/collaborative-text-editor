@@ -1,27 +1,30 @@
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { LogIn } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import { UserPlus } from 'lucide-react';
 
-interface LoginFormProps {
-  onToggleForm: () => void;
-}
-
-export const LoginForm = ({ onToggleForm }: LoginFormProps) => {
+export const RegisterForm = ({ onToggleForm }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { register } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(email, password);
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+      await register(email, password, name);
+    } catch (err) {
+      setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -30,8 +33,8 @@ export const LoginForm = ({ onToggleForm }: LoginFormProps) => {
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-white rounded-lg shadow-lg">
       <div className="flex items-center justify-center mb-6">
-        <LogIn className="w-8 h-8 text-blue-600 mr-2" />
-        <h2 className="text-2xl font-bold text-gray-800">Sign In</h2>
+        <UserPlus className="w-8 h-8 text-blue-600 mr-2" />
+        <h2 className="text-2xl font-bold text-gray-800">Sign Up</h2>
       </div>
 
       {error && (
@@ -41,6 +44,22 @@ export const LoginForm = ({ onToggleForm }: LoginFormProps) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            Full Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+            disabled={loading}
+            minLength={2}
+          />
+        </div>
+
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email
@@ -68,7 +87,9 @@ export const LoginForm = ({ onToggleForm }: LoginFormProps) => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
             disabled={loading}
+            minLength={6}
           />
+          <p className="mt-1 text-xs text-gray-500">At least 6 characters</p>
         </div>
 
         <button
@@ -76,7 +97,7 @@ export const LoginForm = ({ onToggleForm }: LoginFormProps) => {
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? 'Creating account...' : 'Sign Up'}
         </button>
       </form>
 
@@ -85,9 +106,11 @@ export const LoginForm = ({ onToggleForm }: LoginFormProps) => {
           onClick={onToggleForm}
           className="text-blue-600 hover:text-blue-700 text-sm"
         >
-          Don't have an account? Sign up
+          Already have an account? Sign in
         </button>
       </div>
     </div>
   );
 };
+
+

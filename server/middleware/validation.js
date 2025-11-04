@@ -1,4 +1,5 @@
 import { body, param, validationResult } from 'express-validator';
+import { isValidObjectId } from '../config/mongo.js';
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -32,7 +33,7 @@ export const shareValidation = [
   validate,
 ];
 
-export const uuidValidation = [
-  param('id').isUUID().withMessage('Invalid ID format'),
+export const objectIdValidation = [
+  param('id').custom((value) => isValidObjectId(value)).withMessage('Invalid ID format'),
   validate,
 ];

@@ -1,5 +1,5 @@
 import { verifyToken } from '../config/jwt.js';
-import { supabase } from '../config/supabase.js';
+import { User } from '../models/User.js';
 
 export const authenticate = async (req, res, next) => {
   try {
@@ -16,17 +16,12 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('id, email, name')
-      .eq('id', decoded.userId)
-      .maybeSingle();
-
-    if (error || !user) {
+    const user = await User.findById(decoded.userId).select('_id email name');
+    if (!user) {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    req.user = user;
+    req.user = { id: String(user._id), email: user.email, name: user.name };
     next();
   } catch (error) {
     console.error('Authentication error:', error);

@@ -1,21 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi, setAuthToken, getAuthToken } from '../services/api';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authApi, setAuthToken, getAuthToken } from '../services/api.js';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -25,8 +11,8 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,12 +33,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email, password) => {
     const data = await authApi.login(email, password);
     setUser(data.user);
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email, password, name) => {
     const data = await authApi.register(email, password, name);
     setUser(data.user);
   };
@@ -68,3 +54,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     </AuthContext.Provider>
   );
 };
+
+

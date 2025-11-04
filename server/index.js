@@ -7,21 +7,46 @@ import authRoutes from './routes/auth.js';
 import documentRoutes from './routes/documents.js';
 import aiRoutes from './routes/ai.js';
 import { setupCollaboration } from './websockets/collaboration.js';
+import { connectMongo } from './config/mongo.js';
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
+
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+const configuredOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+const allowedOrigins = configuredOrigins.length ? configuredOrigins : defaultOrigins;
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true; // allow same-origin/non-browser requests
+  return allowedOrigins.includes(origin);
+};
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST'],
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
@@ -49,6 +74,15 @@ app.use((err, req, res, next) => {
 });
 
 setupCollaboration(io);
+
+// Connect to MongoDB
+connectMongo().catch((err) => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
+
+
+
 
 const PORT = process.env.PORT || 3001;
 

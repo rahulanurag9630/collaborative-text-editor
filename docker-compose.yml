@@ -1,19 +1,20 @@
-version: '3.8'
-
 services:
-  app:
+  frontend:
     build: .
+    container_name: collaborative-text-editor-main-frontend
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    volumes:
+      - .:/app
+    depends_on:
+      - backend
+
+  backend:
+    build: .
+    container_name: collaborative-text-editor-main-backend
     ports:
       - "3001:3001"
-      - "5173:5173"
-    environment:
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - PORT=3001
-      - NODE_ENV=production
-      - FRONTEND_URL=http://localhost:5173
-    restart: unless-stopped
-    volumes:
-      - ./dist:/app/dist
+    working_dir: /app
+    command: npm run server

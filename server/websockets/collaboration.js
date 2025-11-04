@@ -1,5 +1,8 @@
-import { supabase } from '../config/supabase.js';
 import { verifyToken } from '../config/jwt.js';
+import { User } from '../models/User.js';
+import { Document } from '../models/Document.js';
+import { Permission } from '../models/Permission.js';
+import { ActiveSession } from '../models/ActiveSession.js';
 
 const activeUsers = new Map();
 const documentUsers = new Map();
@@ -18,17 +21,12 @@ export const setupCollaboration = (io) => {
         return next(new Error('Invalid token'));
       }
 
-      const { data: user } = await supabase
-        .from('users')
-        .select('id, email, name')
-        .eq('id', decoded.userId)
-        .maybeSingle();
-
+      const user = await User.findById(decoded.userId).select('_id email name');
       if (!user) {
         return next(new Error('User not found'));
       }
 
-      socket.userId = user.id;
+      socket.userId = String(user._id);
       socket.userName = user.name;
       socket.userEmail = user.email;
 
@@ -44,27 +42,15 @@ export const setupCollaboration = (io) => {
 
     socket.on('join-document', async ({ documentId }) => {
       try {
-        const { data: document } = await supabase
-          .from('documents')
-          .select('owner_id')
-          .eq('id', documentId)
-          .maybeSingle();
-
+        const document = await Document.findById(documentId).select('ownerId');
         if (!document) {
           socket.emit('error', { message: 'Document not found' });
           return;
         }
 
-        let hasAccess = document.owner_id === socket.userId;
-
+        let hasAccess = String(document.ownerId) === socket.userId;
         if (!hasAccess) {
-          const { data: permission } = await supabase
-            .from('document_permissions')
-            .select('role')
-            .eq('document_id', documentId)
-            .eq('user_id', socket.userId)
-            .maybeSingle();
-
+          const permission = await Permission.findOne({ documentId, userId: socket.userId }).select('_id');
           hasAccess = !!permission;
         }
 
@@ -88,14 +74,7 @@ export const setupCollaboration = (io) => {
           cursorPosition: null,
         });
 
-        await supabase
-          .from('active_sessions')
-          .insert([{
-            document_id: documentId,
-            user_id: socket.userId,
-            socket_id: socket.id,
-            cursor_position: {},
-          }]);
+        await ActiveSession.create({ documentId, userId: socket.userId, socketId: socket.id, cursorPosition: {} });
 
         const users = Array.from(documentUsers.get(documentId))
           .map(socketId => activeUsers.get(socketId))
@@ -126,13 +105,7 @@ export const setupCollaboration = (io) => {
           userName: socket.userName,
         });
 
-        await supabase
-          .from('documents')
-          .update({
-            content,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', documentId);
+        await Document.findByIdAndUpdate(documentId, { content, updated_at: new Date() });
 
       } catch (error) {
         console.error('Error handling text change:', error);
@@ -158,14 +131,14 @@ export const setupCollaboration = (io) => {
 
     socket.on('document-save', async ({ documentId }) => {
       try {
-        await supabase
-          .from('documents')
-          .update({ last_saved_at: new Date().toISOString() })
-          .eq('id', documentId);
+        await Document.findByIdAndUpdate(documentId, { lastSavedAt: new Date() });
 
         socket.emit('document-saved', {
           timestamp: new Date().toISOString(),
         });
+
+        // Broadcast update notification so others can refresh latest state if needed
+        socket.to(documentId).emit('document-updated', { documentId });
       } catch (error) {
         console.error('Error saving document:', error);
         socket.emit('error', { message: 'Failed to save document' });
@@ -198,10 +171,7 @@ async function handleLeaveDocument(socket, documentId, io) {
 
     activeUsers.delete(socket.id);
 
-    await supabase
-      .from('active_sessions')
-      .delete()
-      .eq('socket_id', socket.id);
+    await ActiveSession.deleteMany({ socketId: socket.id });
 
     socket.leave(documentId);
 

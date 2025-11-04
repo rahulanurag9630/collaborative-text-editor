@@ -1,18 +1,14 @@
 import { useState } from 'react';
-import { aiApi } from '../../services/api';
+import { aiApi } from '../../services/api.js';
 import { Sparkles, Check, Wand2, FileText, Lightbulb, X } from 'lucide-react';
 
-interface AIAssistantProps {
-  onClose: () => void;
-}
-
-export const AIAssistant = ({ onClose }: AIAssistantProps) => {
+export const AIAssistant = ({ onClose }) => {
   const [text, setText] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleAction = async (action: string) => {
+  const handleAction = async (action) => {
     if (!text.trim()) {
       setError('Please enter some text');
       return;
@@ -45,8 +41,10 @@ export const AIAssistant = ({ onClose }: AIAssistantProps) => {
           data = await aiApi.getSuggestions(text);
           setResult(data.suggestions);
           break;
+        default:
+          break;
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'AI request failed');
     } finally {
       setLoading(false);
@@ -61,19 +59,14 @@ export const AIAssistant = ({ onClose }: AIAssistantProps) => {
             <Sparkles className="w-6 h-6" />
             <h2 className="text-xl font-bold">AI Writing Assistant</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200"
-          >
+          <button onClick={onClose} className="text-white hover:text-gray-200">
             <X className="w-6 h-6" />
           </button>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Enter your text
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Enter your text</label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -86,47 +79,23 @@ export const AIAssistant = ({ onClose }: AIAssistantProps) => {
           <div className="mb-6">
             <p className="text-sm font-medium text-gray-700 mb-3">Choose an action:</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <button
-                onClick={() => handleAction('grammar')}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 disabled:opacity-50 transition-colors"
-              >
+              <button onClick={() => handleAction('grammar')} disabled={loading} className="flex items-center gap-2 px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 disabled:opacity-50 transition-colors">
                 <Check className="w-5 h-5" />
                 <span className="text-sm font-medium">Grammar Check</span>
               </button>
-
-              <button
-                onClick={() => handleAction('enhance')}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors"
-              >
+              <button onClick={() => handleAction('enhance')} disabled={loading} className="flex items-center gap-2 px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors">
                 <Wand2 className="w-5 h-5" />
                 <span className="text-sm font-medium">Enhance</span>
               </button>
-
-              <button
-                onClick={() => handleAction('summarize')}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 disabled:opacity-50 transition-colors"
-              >
+              <button onClick={() => handleAction('summarize')} disabled={loading} className="flex items-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 disabled:opacity-50 transition-colors">
                 <FileText className="w-5 h-5" />
                 <span className="text-sm font-medium">Summarize</span>
               </button>
-
-              <button
-                onClick={() => handleAction('complete')}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-3 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 disabled:opacity-50 transition-colors"
-              >
+              <button onClick={() => handleAction('complete')} disabled={loading} className="flex items-center gap-2 px-4 py-3 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 disabled:opacity-50 transition-colors">
                 <Sparkles className="w-5 h-5" />
                 <span className="text-sm font-medium">Complete</span>
               </button>
-
-              <button
-                onClick={() => handleAction('suggestions')}
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-3 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 disabled:opacity-50 transition-colors"
-              >
+              <button onClick={() => handleAction('suggestions')} disabled={loading} className="flex items-center gap-2 px-4 py-3 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 disabled:opacity-50 transition-colors">
                 <Lightbulb className="w-5 h-5" />
                 <span className="text-sm font-medium">Suggestions</span>
               </button>
@@ -143,20 +112,14 @@ export const AIAssistant = ({ onClose }: AIAssistantProps) => {
           )}
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              {error}
-            </div>
+            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>
           )}
 
           {result && !loading && (
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                AI Result:
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">AI Result:</label>
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <pre className="whitespace-pre-wrap text-sm text-gray-800 font-sans">
-                  {result}
-                </pre>
+                <pre className="whitespace-pre-wrap text-sm text-gray-800 font-sans">{result}</pre>
               </div>
               <button
                 onClick={() => {
@@ -172,11 +135,11 @@ export const AIAssistant = ({ onClose }: AIAssistantProps) => {
         </div>
 
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            AI suggestions are powered by Google Gemini. Results may vary.
-          </p>
+          <p className="text-xs text-gray-500 text-center">AI suggestions are powered by Google Gemini. Results may vary.</p>
         </div>
       </div>
     </div>
   );
 };
+
+
