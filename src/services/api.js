@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3001/api';
+// const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://collaborative-text-editor-b1dp.onrender.com/api'
 
 let authToken = localStorage.getItem('authToken');
 
