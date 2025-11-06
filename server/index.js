@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import documentRoutes from './routes/documents.js';
 import aiRoutes from './routes/ai.js';
+import campaignRoutes from './routes/campaignRoutes.js'
 import { setupCollaboration } from './websockets/collaboration.js';
 import { connectMongo } from './config/mongo.js';
 import path from "path";
@@ -19,7 +20,7 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://collaborative-text-editor-1-ekby.onrender.com'];
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://collaborative-text-editor-1-ekby.onrender.com', 'http://localhost:3000', 'campaingns-dashboard-design-hoqarb5tb-rahulanurag9630s-projects.vercel.app'];
 const configuredOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .split(',')
   .map(o => o.trim())
@@ -63,6 +64,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/campaign', campaignRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
