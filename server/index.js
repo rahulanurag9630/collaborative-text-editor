@@ -20,7 +20,7 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://collaborative-text-editor-1-ekby.onrender.com', 'http://localhost:3000', 'campaingns-dashboard-design-hoqarb5tb-rahulanurag9630s-projects.vercel.app'];
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://collaborative-text-editor-1-ekby.onrender.com', 'http://localhost:3000', 'campaingns-dashboard-design-hoqarb5tb-rahulanurag9630s-projects.vercel.app', 'https://campaingns-dashboard-design.vercel.app'];
 const configuredOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .split(',')
   .map(o => o.trim())
